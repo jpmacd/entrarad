@@ -1,0 +1,42 @@
+rest {
+	tls {
+#		ca_file	             = "${certdir}/cacert.pem"
+#		ca_issuer_file     = "${certdir}/caissuer.pem"
+#		ca_path	             = "${certdir}"
+#		certificate_file     = /path/to/radius.pem
+#		private_key_file     = /path/to/radius.key
+#		private_key_password = "supersecret"
+#		random_file          = /dev/urandom
+#		check_cert = no
+#		check_cert_cn = no
+#		extract_cert_attrs = no
+	}
+	connect_uri = "http://entrarad:5000"
+#	connect_proxy = "socks://127.0.0.1"
+#	http_negotiation = "default"
+#	multiplex = yes
+#	chunk = 0
+	xlat {
+		tls = ${..tls}
+	}
+	authenticate {
+		uri = "${..connect_uri}/validate_credentials"
+		method = 'POST'
+		tls = ${..tls}
+        request_headers {
+            "Authorization" = "Bearer <TOKEN>"
+            "Content-Type" = "application/json"
+        }
+        body = json
+        data = '{ "username": "%{User-Name}", "password": "%{User-Password}" }'
+        force_to = json
+	}
+	connection {
+		reuse {
+			min = 10
+			max = 100
+			cleanup_interval = 30s
+		}
+		connect_timeout = 30.0
+	}
+}

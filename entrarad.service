@@ -1,0 +1,13 @@
+[Unit]
+Description=Entrarad HTTP API
+After=network.target
+
+[Service]
+User=webapp
+Group=webapp
+WorkingDirectory=/opt/entrarad
+EnvironmentFile=/opt/entrarad/.env
+ExecStart=/opt/entrarad/venv/bin/python /opt/entrarad/entrarad/app.py
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+# Ignore
+*
+# Include
+!README.md
+!.gitignore
+!entrarad/
+!entrarad/*.py
+!entrarad/Dockerfile
+!freeradius/
+!freeradius/**
+!docker-compose.yml
+!entrarad.service
+!requirements.txt

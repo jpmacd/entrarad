@@ -1,0 +1,56 @@
+services:
+  entrarad:
+    build:
+      context: ./entrarad
+    secrets:
+      - client_id
+      - tenant_id
+      - client_secret
+      - api_token
+    environment:
+      - DEBUG=true
+      - TIMEOUT=10
+      - CLIENT_ID=/run/secrets/client_id
+      - TENANT_ID=/run/secrets/tenant_id
+      - CLIENT_SECRET=/run/secrets/client_secret
+      - API_TOKEN=/run/secrets/api_token
+      - GUNICORN_PROCESSES=2
+      - GUNICORN_THREADS=4
+    ports:
+      - "5000:5000"
+    networks:
+      - radius_net
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:5000/healthcheck"]
+      interval: 3s
+      timeout: 1s
+      retries: 3
+
+  freeradius:
+    build:
+      context: ./freeradius
+    volumes:
+      - ./freeradius/sites-available/default:/etc/raddb/sites-available/default
+    ports:
+      - "1812:1812/udp"
+    depends_on:
+      entrarad:
+        condition: service_healthy
+    secrets:
+      - api_token
+    networks:
+      - radius_net
+
+secrets:
+  client_id:
+    file: ./.secrets/client_id.txt
+  tenant_id:
+    file: ./.secrets/tenant_id.txt
+  client_secret:
+    file: ./.secrets/client_secret.txt
+  api_token:
+    file: ./.secrets/api_token.txt
+
+networks:
+  radius_net:
+    driver: bridge

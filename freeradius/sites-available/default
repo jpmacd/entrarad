@@ -1,0 +1,33 @@
+server default {
+    # Listening for authentication requests
+    listen {
+        type = auth
+        ipaddr = 0.0.0.0
+        port = 1812
+    }
+
+    # Authentication processing
+    authorize {
+        # Check if the username contains one of the specific domains
+        if (User-Name =~ /@(essentialnet\.works|esnetworks\.onmicrosoft\.com)$/) {
+            update control { 
+                Auth-Type := rest 
+            }
+        }
+        else {
+            reject
+        }
+    }
+
+    authenticate {
+        Auth-Type rest {
+            rest
+            # if (ok) {
+            #     update reply {
+            #         &Vendor-12345-Attr-1 := "value1"
+            #         &Vendor-12345-Attr-2 := "value2"   
+            #     }
+            # }
+        }
+    }
+}
